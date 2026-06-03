@@ -1,0 +1,348 @@
+:root {
+  --textarea-text-color: #9e9e9e; /* #3e3e3e; /* #aeaeae; */
+  --message-text-color: #9e9e9e; /* #3e3e3e; /* aeaeae */
+  --message-code-text-color: darkseagreen; /* #3e3e3e; /* aeaeae */
+  --panel-text-color: #ffffff;
+  --button-text-color: #ffffff;
+  --textarea-disabled-text-color: #1e1e1e; /* #3e3e3e; */
+  --button-disabled-text-color: #6e6e6e;
+  --textarea-color: #1e1e1e;
+  --textarea-disabled-color: #0c0c0c;
+  --message-code-color: #0e0e0e;
+  --model-indicator-off-color: darksalmon;
+  --model-indicator-on-color: lightgreen;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #1e1e1e;
+  overflow: hidden; /* Prevents scrolling */
+}
+
+button {
+  background-color: #6e6e6e;
+  border: 1px solid #9e9e9e;
+  border-radius: 3px;
+  color: var(--button-text-color);
+  margin: 2px;
+  min-height: 30px;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #9e9e9e;
+}
+
+button:disabled {
+  background-color: #3e3e3e;
+  color: var(--button-disabled-text-color);
+}
+
+textarea {
+  background-color: inherit;
+  border: 1px solid #9e9e9e;
+  border-radius: 9px;
+  color: var(--message-text-color);
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: row;
+  padding: 1%;
+  height: 100%;
+  justify-content: center;
+}
+
+.sys-window {
+  display: none; /* flex; */
+  flex-direction: column;
+  flex-grow: 3;
+  max-width: 60%;
+  padding: 0px 5px 5px;
+  color: var(--message-text-color);
+}
+
+.sys-window p {
+  margin-top: 5px;
+}
+
+.sys-msg-top-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.sys-msg-top-panel div {
+  flex-grow: 1;
+  margin: 5px 0px 5px;
+  align-items: center;
+}
+
+.sys-msg-load-panel {
+  display: flex;
+  flex-direction: row;
+}
+
+.sys-msg-new-panel {
+  display: none;
+}
+
+.sys-msg-dropdown {
+  min-height: 32px;
+  flex-grow: 1;
+  margin-right: 2px;
+  font-size: 14px;
+}
+
+.sys-msg-title-input {
+  max-height: 35px;
+  margin-right: 5px;
+  flex-grow: 1;
+  resize: none;
+  overflow: hidden;
+}
+
+#sys-msg-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.archive-window {
+  display: none;
+  flex-direction: column;
+  flex-grow: 3;
+  max-width: 60%;
+  padding: 0px 5px 5px;
+  color: var(--message-text-color);
+}
+
+.archive-window p {
+  margin-top: 5px;
+}
+
+.archive-list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.archive-item {
+  border: 1px solid #9e9e9e;
+  border-radius: 9px;
+  padding: 10px 10px 5px;
+  margin: 5px;
+  font-size: 12px;
+}
+
+.archive-window-btn-panel {
+  display: flex;
+  flex-direction: row;
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  max-width: 90%;
+  padding: 0px 5px 5px;
+}
+
+.chat-window-top-panel {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 5px;
+}
+
+.chat-window-top-panel button {
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.model-selector-panel {
+  display: none;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--panel-text-color);
+  padding-bottom: 10px;
+}
+
+#selected-model-dropdown {
+  margin: 0px 10px 0px;
+  min-height: 32px;
+  font-size: 14px;
+}
+
+.model-circle-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--model-indicator-off-color);
+  margin-left: 5px;
+}
+
+.message-title-panel {
+  color: var(--message-text-color); 
+  padding: 0px 5px 0px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow-x: clip;
+}
+
+.message-display {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  border: 1px solid #9e9e9e;
+  border-radius: 9px;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.message {
+  border: 1px solid #9e9e9e;
+  border-radius: 9px;
+  margin-top: 5px;
+  max-width: 75%;
+  padding: 0px 10px 5px;
+  color: var(--message-text-color);
+  font-size: 14px;
+}
+
+.message.user {
+  align-self: flex-end;
+}
+
+.message.assistant {
+  align-self: flex-start;
+}
+
+.message-content textarea {
+  height: 300px;
+  width: 100%;
+  resize: vertical;
+}
+
+.message-metadata {
+  font-size: 10px;
+  padding: 5px 0px 5px;
+}
+
+.message-reasoning {
+  font-size: 10px;
+  padding: 5px 0px 5px;
+}
+
+.message button {
+  border: 1px solid #9e9e9e;
+  border-radius: 5px;
+  font-size: 10px;
+  min-height: 10px;
+  color: var(--textarea-text-color);
+  background-color: #3e3e3e;
+}
+
+.message button:hover {
+  background-color: #6e6e6e;
+}
+
+.message table {
+  color: var(--message-text-color);
+  font-size: 12px;
+}
+
+.message-content pre code {
+  overflow-x: auto;
+  display: block;
+  color: var(--message-code-text-color);
+  padding: 10px 10px;
+  border-radius: 5px;
+}
+
+.usr-msg-window {
+  display: none; /* flex; */
+  flex-direction: column;
+  flex-grow: 3;
+  max-width: 60%;
+  padding: 0px 5px 5px;
+  color: var(--message-text-color);
+}
+
+.usr-msg-window p {
+  text-align: right;
+  margin-top: 5px;
+}
+
+#usr-msg-form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.side-window-config-panel {
+  display: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-top: 5px;
+  color: var(--textarea-text-color);
+  font-size: 12px;
+  align-items: flex-start;
+}
+
+.config-panel-item {
+  display: flex;
+  width: 50%;
+  white-space: nowrap;
+  align-items: center;
+}
+
+.config-panel-item.one-row {
+  width: 100%;
+}
+
+.config-panel-item textarea {
+  font-size: 12px;
+  height: 24px;
+  margin: 5px 10px;
+  padding: 4px 10px;
+  resize: none;
+  min-width: 30%;
+}
+
+.side-window-btn-panel .send-btn {
+  flex-grow: 1;
+}
+
+.chat-input-textarea {
+  width: 100%;
+  resize: none;
+}
+
+@media screen and (min-width: 768px) {
+  .sys-window {
+    max-width: 30%;
+    flex-grow: 1;
+  }
+
+  .archive-window {
+    max-width: 30%;
+    flex-grow: 1;
+  }
+
+  .chat-window {
+    max-width: 60%;
+    flex-grow: 6;
+  }
+
+  .usr-msg-window {
+    max-width: 30%;
+    flex-grow: 1;
+  }
+}
+

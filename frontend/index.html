@@ -1,0 +1,134 @@
+<html>
+<head>
+  <title>Skeleton Chat</title>
+  <link rel="icon" type="image/x-icon" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="scripts/showdown.min.js"></script>
+</head>
+<body>
+<div class="main-container">
+
+<div class="sys-window">
+  <p>System Message</p>
+  <form id="sys-msg-form">
+    <div class="sys-msg-top-panel">
+      <div class="sys-msg-load-panel">
+        <select class="sys-msg-dropdown">
+        </select>
+        <button id="sys-msg-new-btn" class="new-btn">New</button>
+        <button id="sys-msg-delete-btn" class="delete-btn">Delete</button>
+        <button id="sys-msg-load-btn" class="load-btn">Load ≫</button>
+      </div>
+      <div class="sys-msg-new-panel">
+        <textarea class="sys-msg-title-input" placeholder="Enter name for system message here"></textarea>
+        <button id="sys-msg-save-btn" class="save-btn">Save</button>
+      </div>
+    </div>
+    <textarea id="sys-msg-input" class="chat-input-textarea"></textarea>
+  </form>
+</div> <!-- system-window -->
+
+<div class="archive-window">
+  <p>Archived Chats</p>
+  <div class="archive-list">
+    <!-- archived chat items will appear here -->
+  </div>
+  <button id="save-current-chat-btn">Archive Current Chat...</button>
+</div> <!-- archive-window -->
+
+<div class="chat-window">
+  <div class="chat-window-top-panel">
+    <button class="archive-window-btn">« Chats</button>
+    <button class="show-sys-window-btn">« System</button>
+    <button class="clear-chat-btn">Clear Chat</button>
+    <button class="model-btn">
+      <span class="model-btn-lbl">Model</span>
+      <div class="model-circle-indicator"></div>
+    </button> 
+    <button class="show-msg-window-btn">New »</button>
+  </div> <!-- chat-window-top-panel -->
+
+  <div class="model-selector-panel">
+    <div class="model-selector-prompt">Choose a Model:</div>
+    <select id="selected-model-dropdown" name="selectedModel">
+      <!-- model options go here -->
+    </select>
+    <button class="load-model-btn">Load Model ↓</button>
+    <button class="unload-model-btn">Unload Model ↑</button>
+    <button class="stop-model-btn">Stop Model</button>
+  </div> <!-- model-selector-panel -->
+
+  <div class="message-title-panel">
+  </div> <!-- message-title-panel -->
+
+  <div class="message-display">
+  </div> <!-- message-display -->
+</div> <!-- chat-window -->
+
+<div class="usr-msg-window">
+  <p>New Message</p>
+  <form id="usr-msg-form">
+    <textarea id="usr-msg-input" class="chat-input-textarea"></textarea>
+    <div class="side-window-btn-panel">
+      <button id="usr-msg-send-btn" type="submit" class="send-btn">Send</button>
+      <button id="usr-msg-config-btn" class="config-btn">Config ⛭</button>
+      <button id="usr-msg-clear-btn" class="clear-btn">Clear</button>
+    </div> <!-- side-window-btn-panel -->
+    <div class="side-window-config-panel">
+      <div class="config-panel-item one-row">
+        <input id="usr-msg-enable-think-cb" type="checkbox" checked>
+        <label for="usr-msg-enable-think-cb">Enable Thinking</label>
+      </div>
+      <div class="config-panel-item one-row">
+        <label for="usr-msg-max-tokens-textarea">Max Tokens</label>
+        <textarea id="usr-msg-max-tokens-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-temperature-textarea">Temperature</label>
+        <textarea id="usr-msg-temperature-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-top-k-textarea">Top K</label>
+        <textarea id="usr-msg-top-k-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-top-p-textarea">Top P</label>
+        <textarea id="usr-msg-top-p-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-min-p-textarea">Min P</label>
+        <textarea id="usr-msg-min-p-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-rep-pen-textarea">Rep Penalty</label>
+        <textarea id="usr-msg-rep-pen-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-rep-range-textarea">Rep Range</label>
+        <textarea id="usr-msg-rep-range-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-freq-pen-textarea">Freq Penalty</label>
+        <textarea id="usr-msg-freq-pen-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-freq-range-textarea">Freq Range</label>
+        <textarea id="usr-msg-freq-range-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-pres-pen-textarea">Pres Penalty</label>
+        <textarea id="usr-msg-pres-pen-textarea">null</textarea>
+      </div>
+      <div class="config-panel-item">
+        <label for="usr-msg-pres-range-textarea">Pres Range</label>
+        <textarea id="usr-msg-pres-range-textarea">null</textarea>
+      </div>
+    </div> <!-- side-window-config-panel -->
+  </form>
+</div> <!-- usr-msg-window -->
+
+</div> <!-- main-container -->
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"sys_role": "sys", "model": {"temperature": 1.0, "top_p": 0.6, "max_tokens": 2600, "top_k": 128, "min_p": 0.0}, "tokenizer": null, "tool_calling": {"role": "tool_use", "start_tag": "<|tool_call>", "end_tag": "<tool_call|>", "pattern": "call:([\\w_]+)\\{(.+)\\}", "arg_pattern": "([_\\w]+):\\\"(.+)\\\"", "replacers": {"<|\"|>": "\""}}, "should_clean_inputs": false}

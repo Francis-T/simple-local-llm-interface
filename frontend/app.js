@@ -444,6 +444,7 @@ function addMessageToDisplay(msgData) {
   });
   const wrap = document.createElement("p");
   wrap.classList.add('message-content');
+  wrap.id = "message-content-" + (msgData.id).toString();
 
   const isAssistant = (msgType == "assistant");
   const isUser = (msgType == "user");
@@ -451,7 +452,7 @@ function addMessageToDisplay(msgData) {
 
   if (isAssistant) {
     let content = msgData.content;
-    content = content.replace("<channel|>","<br/>");
+    content = content.replace("<channel|>","<br/><br/>");
     content = content.replace("<|channel>thought","");
 
     wrap.innerHTML = converter.makeHtml(content);
@@ -676,8 +677,12 @@ async function handleSend(event) {
         partial: true,
       });
 
+      const latestMessageId = allMessages[allMessages.length-1].id;
+      const latestContentDivId = "message-content-"+latestMessageId.toString();
+
       let buffer = "";
       let result = null;
+      let chunkCount = 0;
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -706,10 +711,38 @@ async function handleSend(event) {
 
         for (const chunkData of chunkItems) {
           if (chunkData.type == "chunk") {
-            allMessages[allMessages.length-1].content += chunkData.data;
-            updateMessageDisplay();
-          } else {
+            allMessages[latestMessageId].content += chunkData.data;
+
+            if (chunkCount == 0) {
+              updateMessageDisplay();
+
+            } else {
+              const latestContent = document.getElementById(latestContentDivId);
+              latestContent.innerHTML += chunkData.data;
+
+              if (((chunkCount+1) % 8) == 0) {
+                var converter = new showdown.Converter({
+                  backslashEscapesHTMLTags: true,
+                  simpleLineBreaks: true,
+                  tables: true,
+                });
+
+                let content = allMessages[latestMessageId].content;
+                content = content.replace("<channel|>","<br/><br/>");
+                content = content.replace("<|channel>thought","");
+
+                latestContent.innerHTML = converter.makeHtml(content);
+              }
+            }
+
+            chunkCount += 1;
+            
+          } else if (chunkData.type == "final") {
             result = JSON.parse(chunkData.data);
+
+          } else {
+              console.log("Received unknown chunk type");
+              console.log(chunkData);
           }
         }
       }
@@ -1173,15 +1206,14 @@ function updateSelectSysMsgDropdownContent() {
   const pnSelectMsg = document.getElementsByClassName("sys-msg-select-panel")[0];
 
   drdSysMsg.innerHTML = "";
-  let msgIdx = 0;
   for (m of systemMessages) {
     const opt = document.createElement("option");
-    opt.value = msgIdx;
+    opt.value = m.id;
     opt.textContent = m.name;
     drdSysMsg.append(opt);
-
-    msgIdx++;
   }
+
+  drdSysMsg.value = currSystemMsg.id;
 };
 
 function saveSystemMessages() {
@@ -1189,6 +1221,8 @@ function saveSystemMessages() {
 };
 
 function getSystemMessages() {
+  getCurrentSystemMessage();
+
   const rawData = localStorage.getItem("savedSysMsgs");
   if (rawData == null) {
     systemMessages = [
@@ -1201,6 +1235,9 @@ function getSystemMessages() {
     return systemMessages;
   }
   systemMessages = JSON.parse(rawData);
+  for (let i = 0; i < systemMessages.length; i++) {
+    systemMessages[i].id = i;
+  }
   return systemMessages;
 };
 
@@ -1248,15 +1285,31 @@ function handleSystemMessageSelect(e) {
 };
 
 function getCurrentSystemMessage() {
+  const rawData = localStorage.getItem("currSysMsg");
+  currSystemMsg = JSON.parse(rawData);
   return currSystemMsg;
 };
 
 function setCurrentSystemMessage(e) {
   const txtSysMsgName = document.getElementsByClassName("sys-msg-title-input")[0];
+  const sysMsgs = getSystemMessages();
+
+  let sysMsgId = null;
+  for (const m of sysMsgs) {
+    if (m.name == txtSysMsgName.value) {
+      console.log(txtSysMsgName.value);
+      sysMsgId = m.id;
+      break;
+    }
+  }
+
   currSystemMsg = {
+    id: sysMsgId,
     name: txtSysMsgName.value,
     content: txtSysMsg.value,
   };
+
+  localStorage.setItem("currSysMsg", JSON.stringify(currSystemMsg));
 
   allMessages[0].content = currSystemMsg.content;
 

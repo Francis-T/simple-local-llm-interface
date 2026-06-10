@@ -1,9 +1,12 @@
 import gc
 import os
+import sqlite3
 
 from collections.abc import AsyncIterable
 
 import mlx.core as mx
+import tinykv as tkv
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -50,6 +53,9 @@ class ModelRequest(BaseModel):
     sampler : SamplerParams
     logit_processors : LogitProcessorParams
 
+class KeyValueObject(BaseModel):
+    k : str
+    v : str | None = ""
 
 # Response types
 def build_response(content_type, content):
@@ -67,6 +73,14 @@ def err(msg):
 # FastAPI
 
 app = FastAPI()
+
+conn = sqlite3.connect("local.db")
+try:
+    tkv.create_schema(conn)
+except sqlite3.OperationalError as e:
+    print(f"Warning: SQLite - {e}")
+    pass 
+db = tkv.TinyKV(conn, allow_pickle=False)
 
 allowed_origins = [
     "http://localhost:8000",
@@ -132,6 +146,30 @@ async def api_unload_selected_model():
     unload_model()
 
     return info("OK")
+
+@app.post("/set")
+async def api_data_set(kv_obj : KeyValueObject):
+    print("Storing Data:")
+    print(kv_obj)
+    db.set(kv_obj.k, kv_obj.v)
+    conn.commit()
+    return {
+        'k': kv_obj.k,
+        'v': db.get(kv_obj.k),
+    }
+
+@app.post("/get")
+async def api_data_get(kv_obj : KeyValueObject):
+    result = None
+    try:
+        result = db.get(kv_obj.k)
+    except KeyError:
+        result = None
+
+    return {
+        'k': kv_obj.k,
+        'v': result,
+    }
 
 @app.post("/request")
 async def api_model_request(request : ModelRequest):

@@ -1,3 +1,10 @@
+# Repo-specific
+.DS_Store
+*~
+*.swp
+*.db
+*.bak
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

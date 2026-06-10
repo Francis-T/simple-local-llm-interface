@@ -7,6 +7,7 @@ This is a **handcoded** hobby exercise --- as such it most likely contains a lot
 ## Pre-requisites
 - FastAPI
 - MLX-LM
+- tinykv (https://pypi.org/project/tinykv/)
 - ??? --- there may be other stuff I forgot atm
 
 ## Usage

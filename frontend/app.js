@@ -5,6 +5,8 @@ const STOP_API_URL = '/stop';
 const STATUS_API_URL = '/status';
 const REQUEST_API_URL = '/request';
 const STREAM_API_URL = '/stream';
+const GET_DATA_URL = '/get';
+const SET_DATA_URL = '/set';
 
 const btnToggleArchiveWindow = document.getElementsByClassName("archive-window-btn")[0];
 const btnSaveCurrentChat = document.getElementById("save-current-chat-btn");
@@ -144,8 +146,8 @@ function initializeEventHandlers() {
 };
 
 async function initializeUI() {
-  getSystemMessages();
-  getServerStatus();
+  await getSystemMessages();
+  await getServerStatus();
   await initializeModelList();
 
   initializeEventHandlers();
@@ -203,6 +205,64 @@ async function getServerStatus() {
   } catch(error) {
     console.log("Network or Fetch Error:", error);
   }
+};
+
+async function retrieveData(key) {
+  const payload = {
+    k: key,
+    v: null
+  };
+  try {
+    const response = await fetch(GET_DATA_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      return result.v;
+
+    } else {
+      const error = await response.text;
+      console.log("Request Failed:", error);
+    }
+      
+  } catch (error) {
+    console.error('Network or Fetch error:', error);
+  }
+  return null;
+};
+
+async function storeData(key, value) {
+  const payload = {
+    k: key,
+    v: value
+  };
+  try {
+    const response = await fetch(SET_DATA_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      return;
+
+    } else {
+      const error = await response.text;
+      console.log("Request Failed:", error);
+    }
+      
+  } catch (error) {
+    console.error('Network or Fetch error:', error);
+  }
+  return;
 };
 
 function clearChat() {
@@ -957,12 +1017,12 @@ function setMessageConfig(newConfig) {
 /*
  * SECTION: Message Archiving Functions
  */
-function toggleArchiveWindow(e, to_state=null) {
+async function toggleArchiveWindow(e, to_state=null) {
   const pnArchiveMsg = document.getElementsByClassName("archive-window")[0];
   if (to_state != null) {
     pnArchiveMsg.style.display = to_state;
     if (to_state == "none") {
-      const savedChats = getArchiveData();
+      const savedChats = await getArchiveData();
       displaySavedChats(savedChats);
     }
   }
@@ -971,7 +1031,7 @@ function toggleArchiveWindow(e, to_state=null) {
     pnArchiveMsg.style.display = "none";
   } else {
     pnArchiveMsg.style.display = "flex";
-    const savedChats = getArchiveData();
+    const savedChats = await getArchiveData();
     displaySavedChats(savedChats);
   }
 };
@@ -1041,20 +1101,21 @@ function filterArchivableMessages(messages) {
   return filteredMessages;
 };
 
-function getArchiveData() {
-  const savedChats = localStorage.getItem("savedChats");
+async function getArchiveData() {
+  const savedChats = await retrieveData("savedChats");
   if (savedChats == null) {
-    return [];
+    const localSavedChats = localStorage.getItem("savedChats");
+    if (localSavedChats == null) {
+      return [];
+    }
+    await storeData("savedChats", localSavedChats);
+    return JSON.parse(localSavedChats);
   }
   return JSON.parse(savedChats);
 };
 
-function saveCurrentChat() {
-  const rawData = localStorage.getItem("savedChats");
-  let savedChats = [];
-  if (rawData != null) {
-    savedChats = JSON.parse(rawData);
-  }
+async function saveCurrentChat() {
+  let savedChats = await getArchiveData(); 
 
   const archivableMessages = filterArchivableMessages(allMessages);
   savedChats.push({
@@ -1062,14 +1123,14 @@ function saveCurrentChat() {
     messages: archivableMessages
   });
 
-  localStorage.setItem("savedChats", JSON.stringify(savedChats));
+  await storeData("savedChats", JSON.stringify(savedChats));
 
   displaySavedChats(savedChats);
 };
 
-function saveChatJSON(e) {
+async function saveChatJSON(e) {
   const chat_id = e.target.value;
-  const savedChats = getArchiveData();
+  const savedChats = await getArchiveData();
 
   const jsonBlob = new Blob(
     [ JSON.stringify(savedChats[chat_id], null, 2) ],
@@ -1088,9 +1149,9 @@ function saveChatJSON(e) {
   URL.revokeObjectURL(url);
 }
 
-function saveChatTextFile(e) {
+async function saveChatTextFile(e) {
   const chat_id = e.target.value;
-  const savedChats = getArchiveData();
+  const savedChats = await getArchiveData();
   const targetChat = savedChats[chat_id].messages;
 
   /* Convert chat to a text file */
@@ -1118,24 +1179,24 @@ function saveChatTextFile(e) {
   URL.revokeObjectURL(url);
 }
 
-function deleteArchivedChat(e) {
+async function deleteArchivedChat(e) {
   const userConfirmed = confirm("Are you sure you want to delete this archived chat?");
   if (userConfirmed !== true) {
     return;
   }
 
   const chat_id = e.target.value;
-  let savedChats = getArchiveData();
+  let savedChats = await getArchiveData();
 
   savedChats.splice(chat_id, 1);
 
-  localStorage.setItem("savedChats", JSON.stringify(savedChats));
+  await storeData("savedChats", JSON.stringify(savedChats));
   displaySavedChats(savedChats);
 };
 
-function reloadArchivedChat(e) {
+async function reloadArchivedChat(e) {
   const chat_id = e.target.value;
-  const savedChats = getArchiveData();
+  const savedChats = await getArchiveData();
   const archivedChat = savedChats[chat_id];
 
   allMessages.length = 0;
@@ -1162,12 +1223,12 @@ function reloadArchivedChat(e) {
 /*
  * SECTION: System Message Functions
  */
-function toggleSystemWindow(e, to_state=null) {
+async function toggleSystemWindow(e, to_state=null) {
   const pnSystemMsg = document.getElementsByClassName("sys-window")[0];
   if (to_state != null) {
     pnSystemMsg.style.display = to_state;
     if (to_state != 'none') {
-      getSystemMessages();
+      await getSystemMessages();
       updateSelectSysMsgDropdownContent();
       txtSysMsg.value = currSystemMsg.content; 
     }
@@ -1179,7 +1240,7 @@ function toggleSystemWindow(e, to_state=null) {
   } else {
     pnSystemMsg.style.display = "flex";
 
-    getSystemMessages();
+    await getSystemMessages();
     updateSelectSysMsgDropdownContent();
 
     txtSysMsg.value = currSystemMsg.content;
@@ -1216,23 +1277,29 @@ function updateSelectSysMsgDropdownContent() {
   drdSysMsg.value = currSystemMsg.id;
 };
 
-function saveSystemMessages() {
-  localStorage.setItem("savedSysMsgs", JSON.stringify(systemMessages));
+async function saveSystemMessages() {
+  await storeData("savedSysMsgs", JSON.stringify(systemMessages));
 };
 
-function getSystemMessages() {
-  getCurrentSystemMessage();
+async function getSystemMessages() {
+  await getCurrentSystemMessage();
 
-  const rawData = localStorage.getItem("savedSysMsgs");
+  let rawData = await retrieveData("savedSysMsgs");
   if (rawData == null) {
-    systemMessages = [
-      {
-        id: 0,
-        name: "Default",
-        content: "You are an AI assistant."
-      }
-    ];
-    return systemMessages;
+    const localRawData = localStorage.getItem("savedSysMsgs");
+    if (localRawData == null) {
+      systemMessages = [
+        {
+          id: 0,
+          name: "Default",
+          content: "You are an AI assistant."
+        }
+      ];
+      await storeData("savedSysMsgs", JSON.stringify(systemMessages));
+      return systemMessages;
+    }
+    rawData = localRawData;
+    await storeData("savedSysMsgs", rawData);
   }
   systemMessages = JSON.parse(rawData);
   for (let i = 0; i < systemMessages.length; i++) {
@@ -1241,37 +1308,36 @@ function getSystemMessages() {
   return systemMessages;
 };
 
-function addSystemMessage(e) {
+async function addSystemMessage(e) {
+  e.preventDefault();
   const txtSysMsgName = document.getElementsByClassName("sys-msg-title-input")[0];
 
   if ((txtSysMsgName.value == "") || (txtSysMsg.value == "")) {
-    e.preventDefault();
     return;
   }
 
   const newSysMsg = {
     name: txtSysMsgName.value,
     content: txtSysMsg.value,
+    id: systemMessages.length
   };
 
   systemMessages.push(newSysMsg);
-  saveSystemMessages();
+  await saveSystemMessages();
 
   updateSelectSysMsgDropdownContent();
   drdSysMsg.value = systemMessages.length-1;
 
   toggleSaveSysMsgPanel(null, to_state='none');
-  e.preventDefault();
 };
 
-function deleteSystemMessage(e) {
+async function deleteSystemMessage(e) {
+  e.preventDefault();
   const selIdx = drdSysMsg.value;
 
   systemMessages.splice(selIdx, 1);
-  saveSystemMessages();
+  await saveSystemMessages();
   updateSelectSysMsgDropdownContent();
-
-  e.preventDefault();
 };
 
 function handleSystemMessageSelect(e) {
@@ -1284,18 +1350,29 @@ function handleSystemMessageSelect(e) {
   e.preventDefault();
 };
 
-function getCurrentSystemMessage() {
+async function getCurrentSystemMessage() {
   const rawData = localStorage.getItem("currSysMsg");
+  if (rawData == null) {
+    return {
+      id: 0,
+      name: "Default",
+      content: "You are an AI assistant."
+    };
+  }
   currSystemMsg = JSON.parse(rawData);
   return currSystemMsg;
 };
 
-function setCurrentSystemMessage(e) {
+async function setCurrentSystemMessage(e) {
+  e.preventDefault();
   const txtSysMsgName = document.getElementsByClassName("sys-msg-title-input")[0];
-  const sysMsgs = getSystemMessages();
+
+  if (systemMessages == null) {
+    await getSystemMessages();
+  }
 
   let sysMsgId = null;
-  for (const m of sysMsgs) {
+  for (const m of systemMessages) {
     if (m.name == txtSysMsgName.value) {
       console.log(txtSysMsgName.value);
       sysMsgId = m.id;
@@ -1314,7 +1391,5 @@ function setCurrentSystemMessage(e) {
   allMessages[0].content = currSystemMsg.content;
 
   toggleSystemWindow(null, to_state='none');
-
-  e.preventDefault();
 };
 
